@@ -1,4 +1,5 @@
-package idv.codievilky.august.stock.info
+package idv.codievilky.august.stock
+package info
 
 /**
  * @auther Codievilky August
@@ -8,4 +9,4 @@ class FinancialSituation() {
 
 }
 
-case
+
