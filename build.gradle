@@ -14,11 +14,20 @@ repositories {
     mavenLocal()
 }
 
+
+version = ['jackson': '2.11.2']
+
+
 dependencies {
-    compile "org.scala-lang:scala-reflect:2.13.3"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'commons-codec:commons-codec:1.14'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.66'
+    implementation "org.scala-lang:scala-reflect:2.13.3"
+    testImplementation 'junit:junit:4.12'
+    implementation 'commons-codec:commons-codec:1.14'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
+    implementation 'commons-io:commons-io:2.8.0'
+    implementation "com.fasterxml.jackson.core:jackson-core:$version.jackson"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$version.jackson"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$version.jackson"
+    implementation "com.fasterxml.jackson.module:jackson-module-scala_2.13:$version.jackson"
 }
 
 task create_dirs {

@@ -2,8 +2,8 @@ package idv.codievilky.august.stock.analyse
 
 /**
  * @auther Codievilky August
- * @since 2020/9/5
+ * @since 2020/9/15
  */
-class Analyizer {
+case class PossibleValue(value: Number, percentage: Double) {
 
 }
