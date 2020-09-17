@@ -7,7 +7,7 @@ import idv.codievilky.august.stock.analyse.PossibleValue
  * @auther Codievilky August
  * @since 2020/9/5
  */
-class Stock(val stockName: String, val stockCode: Int, val price: StockPrice, val financialSituation: FinancialSituation) {
+class Stock(val stockName: String, val stockCode: String, val price: StockPrice, val financialSituation: FinancialSituation) {
 
   def peOf(seasonInfo: SeasonInfo): Double = {
     Stock.calcPe(priceOf(seasonInfo) * totalShares, netProfitOf(seasonInfo))
