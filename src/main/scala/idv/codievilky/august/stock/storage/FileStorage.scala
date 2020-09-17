@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils
 object FileStorage extends StockStorage {
 
   def saveStock(stock: Stock): Unit = {
-    val file = new File("/Users/codievilky/ca/stock-prediction/src/main/resources", s"${stock.stockName}.json")
+    val file = new File("/Users/codievilky/ca/stock-prediction/src/main/resources", s"${stock.stockInfo.stockName}.json")
     FileUtils.writeStringToFile(file, JSON_WRITER.writeValueAsString(stock), "UTF-8")
   }
 

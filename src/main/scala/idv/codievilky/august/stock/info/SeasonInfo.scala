@@ -6,6 +6,7 @@ import java.util.{Calendar, TimeZone}
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.annotation.{JsonDeserialize, JsonSerialize}
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.StringKeySerializer
 import com.fasterxml.jackson.databind.{DeserializationContext, JsonSerializer, KeyDeserializer, SerializerProvider}
 
 /**
@@ -13,7 +14,7 @@ import com.fasterxml.jackson.databind.{DeserializationContext, JsonSerializer, K
  * @since 2020/9/5
  */
 
-@JsonSerialize(using = classOf[SeasonInfoSerializer])
+//@JsonSerialize(using = classOf[SeasonInfoSerializer])
 @JsonDeserialize(keyUsing = classOf[SeasonInfoKeyDeserializer])
 case class SeasonInfo(year: Int, season: Season) extends Ordered[SeasonInfo] {
   def until(targetSeason: SeasonInfo): Seq[SeasonInfo] = {
@@ -59,6 +60,8 @@ case class SeasonInfo(year: Int, season: Season) extends Ordered[SeasonInfo] {
 
 
   override def toString = s"$year-${season.toString}"
+
+  def lastDayOfSeason: DayInfo = DayInfo(year, season.month, season.day)
 }
 
 object SeasonInfo {
@@ -90,15 +93,18 @@ object SeasonInfo {
     throw new IllegalArgumentException(s"failed to find season. $date")
   }
 }
+/*
+class SeasonInfoSerializer extends StringKeySerializer {
 
-class SeasonInfoSerializer extends JsonSerializer[SeasonInfo] {
-  override def serialize(seasonInfo: SeasonInfo, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
+  override def serialize(value: Any, g: JsonGenerator, provider: SerializerProvider) = super.serialize(value, g, provider)
+
+  def serilize(seasonInfo: SeasonInfo, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
     val value = seasonInfo.toString
     gen.writeStartObject()
     gen.writeString(value)
     gen.writeEndObject()
   }
-}
+}*/
 
 class SeasonInfoKeyDeserializer extends KeyDeserializer {
   override def deserializeKey(keyValue: String, ctxt: DeserializationContext): SeasonInfo = {

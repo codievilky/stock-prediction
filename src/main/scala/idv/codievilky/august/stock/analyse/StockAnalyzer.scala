@@ -26,7 +26,7 @@ object StockAnalyzer {
 }
 
 object Analyzer extends App {
-  val stock = FileStorage.read("有友食品")
+  val stock = FileStorage.getStock("601788")
   //  StockAnalyzer.calcPossiblePriceOf(SeasonInfo(2020, Season.Q3), stock, 2018).print()
   StockAnalyzer.calcPossiblePriceOf(SeasonInfo(2020, Season.Q2), stock, 2019).print()
 }
