@@ -10,8 +10,10 @@ import scala.collection.mutable.ListBuffer
  * @auther Codievilky August
  * @since 2020/9/5
  */
-class FinancialSituation {
-  val allFinancialInfo = new mutable.HashMap[SeasonInfo, FinancialInfo]()
+class FinancialSituation(financialInfoIter: Iterator[FinancialInfo]) {
+  val allFinancialInfo = financialInfoIter.foldLeft(new mutable.HashMap[SeasonInfo, FinancialInfo]()) { (m, f) =>
+    m += (f.seasonInfo -> f)
+  }
 
   def +=(seasonFinancialInfo: (SeasonInfo, FinancialInfo)): Unit = {
     allFinancialInfo += seasonFinancialInfo
@@ -19,14 +21,15 @@ class FinancialSituation {
 
   def apply(seasonInfo: SeasonInfo): FinancialInfo = allFinancialInfo(seasonInfo)
 
+  def update(seasonInfo: SeasonInfo, financialInfo: FinancialInfo): Unit = allFinancialInfo.update(seasonInfo, financialInfo);
+
   def netProfitYearOnYearGrowthRatio(startSeason: SeasonInfo) = {
     (netProfit(startSeason) * 1000 / netProfit(startSeason.lastYear)).toDouble / 1000
   }
 
   def netProfit(season: SeasonInfo) = {
-    val profit = if (season.season == Season.Q1) allFinancialInfo(season).totalNetProfit
+    if (season.season == Season.Q1) allFinancialInfo(season).totalNetProfit
     else allFinancialInfo(season).totalNetProfit - allFinancialInfo(season.lastSeason).totalNetProfit
-    (profit * 1_0000_0000).toLong
   }
 
   /**
@@ -42,7 +45,7 @@ class FinancialSituation {
     val lastYearProfit = netProfit(expectedSeason.lastYear)
     val expectedProfit = new ListBuffer[Long]
     for (seasonId <- 1 until expectedSeason.season.id) {
-      val seasonInfo = SeasonInfo(expectedSeason.year, Season(seasonId))
+      val seasonInfo = SeasonInfo(expectedSeason.year, Season.of(seasonId))
       expectedProfit += (lastYearProfit * netProfitYearOnYearGrowthRatio(seasonInfo)).toLong
     }
     for (profit <- expectedProfit.toList) yield PossibleValue(profit, 0.65)

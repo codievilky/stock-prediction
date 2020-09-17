@@ -1,6 +1,9 @@
 package idv.codievilky.august.stock
 package info
 
+import java.text.SimpleDateFormat
+import java.util.{Calendar, TimeZone}
+
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.annotation.{JsonDeserialize, JsonSerialize}
 import com.fasterxml.jackson.databind.{DeserializationContext, JsonSerializer, KeyDeserializer, SerializerProvider}
@@ -14,7 +17,7 @@ import com.fasterxml.jackson.databind.{DeserializationContext, JsonSerializer, K
 @JsonDeserialize(keyUsing = classOf[SeasonInfoKeyDeserializer])
 case class SeasonInfo(year: Int, season: Season) extends Ordered[SeasonInfo] {
   def until(targetSeason: SeasonInfo): Seq[SeasonInfo] = {
-    for (i <- seasonNumber until targetSeason.seasonNumber) yield SeasonInfo.getSeasonInfo(i)
+    for (i <- seasonNumber until targetSeason.seasonNumber) yield SeasonInfo.forSeasonNumber(i)
   }
 
   override def >=(seasonInfo: SeasonInfo): Boolean = {
@@ -37,7 +40,7 @@ case class SeasonInfo(year: Int, season: Season) extends Ordered[SeasonInfo] {
 
   def +(plusNum: Int): SeasonInfo = {
     val newSeasonNum = seasonNumber + plusNum
-    SeasonInfo.getSeasonInfo(newSeasonNum)
+    SeasonInfo.forSeasonNumber(newSeasonNum)
   }
 
   def -(minusNum: Int): SeasonInfo = {
@@ -52,21 +55,45 @@ case class SeasonInfo(year: Int, season: Season) extends Ordered[SeasonInfo] {
 
   def lastYear: SeasonInfo = this - 4
 
+  def timestamps = SeasonInfo.SIMPLE_DATE_FORMATTER.parse(s"$year-${season.date}").getTime
+
+
   override def toString = s"$year-${season.toString}"
 }
 
 object SeasonInfo {
-  def getSeasonInfo(seasonNum: Int): SeasonInfo = {
+  def forSeasonNumber(seasonNum: Int): SeasonInfo = {
     val year = seasonNum / 4
     if (seasonNum % 4 == 0) SeasonInfo(year - 1, Season.Q4)
-    else SeasonInfo(year, Season(seasonNum % 4))
+    else SeasonInfo(year, Season.of(seasonNum % 4))
+  }
+
+  val SIMPLE_DATE_FORMATTER = {
+    val format = new SimpleDateFormat("yyyy-MM-dd")
+    format.setTimeZone(TimeZone.getTimeZone("Etc/GMT-8"))
+    format
+  }
+
+  def chinaCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+08:00"))
+
+  def forDate(date: String): SeasonInfo = {
+    val calendar = chinaCalendar
+    val requestDate = SIMPLE_DATE_FORMATTER.parse(date)
+    calendar.setTime(requestDate)
+    val year = calendar.get(Calendar.YEAR)
+    Season.values.foreach { season =>
+      val currentSeasonInfo = SeasonInfo(year, season.asInstanceOf[Season])
+      if (currentSeasonInfo.timestamps >= requestDate.getTime) {
+        return currentSeasonInfo
+      }
+    }
+    throw new IllegalArgumentException(s"failed to find season. $date")
   }
 }
 
 class SeasonInfoSerializer extends JsonSerializer[SeasonInfo] {
   override def serialize(seasonInfo: SeasonInfo, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
     val value = seasonInfo.toString
-    println(value)
     gen.writeStartObject()
     gen.writeString(value)
     gen.writeEndObject()
@@ -76,7 +103,7 @@ class SeasonInfoSerializer extends JsonSerializer[SeasonInfo] {
 class SeasonInfoKeyDeserializer extends KeyDeserializer {
   override def deserializeKey(keyValue: String, ctxt: DeserializationContext): SeasonInfo = {
     val listSplit = keyValue.split('-')
-    SeasonInfo(Integer.parseInt(listSplit(0)), Season.withName(listSplit(1)))
+    SeasonInfo(Integer.parseInt(listSplit(0)), Season.of(listSplit(1)))
   }
 }
 

@@ -24,13 +24,13 @@ object FileStorage {
   }
 
   def main(args: Array[String]): Unit = {
-    val si = new FinancialSituation
-    si += SeasonInfo(2020, Season.Q1) -> new FinancialInfo(1, 2, 3)
+/*    val si = new FinancialSituation
+    si += SeasonInfo(2020, Season.Q1) -> new FinancialInfo(SeasonInfo(2020, Season.Q1), 1, 2, 3)
     val abcStock = new Stock("abc", 2312, new StockPrice(10), si);
     abcStock.price.seasonPriceMap += (SeasonInfo(2011, Season.Q2) -> new StockDayPrice(10))
     save(abcStock)
     val readStock = read("abc")
-    println(readStock.financialSituation.allFinancialInfo.iterator.next()._1)
+    println(readStock.financialSituation.allFinancialInfo.iterator.next()._1)*/
   }
 
 
