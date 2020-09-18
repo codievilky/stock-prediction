@@ -1,6 +1,7 @@
 package idv.codievilky.august.stock
 package info
 
+import idv.codievilky.august.common.Season.Season
 import idv.codievilky.august.stock.analyse.PossibleValue
 
 import scala.collection.mutable
@@ -10,10 +11,15 @@ import scala.collection.mutable.ListBuffer
  * @auther Codievilky August
  * @since 2020/9/5
  */
-class FinancialSituation(financialInfoIter: Iterator[FinancialInfo]) {
-  val allFinancialInfo = financialInfoIter.foldLeft(new mutable.HashMap[SeasonInfo, FinancialInfo]()) { (m, f) =>
-    m += (f.seasonInfo -> f)
+class FinancialSituation {
+  def this(financialInfoIter: Iterator[FinancialInfo]) {
+    this()
+    financialInfoIter.foldLeft(allFinancialInfo) { (m, f) =>
+      m += (f.seasonInfo -> f)
+    }
   }
+
+  val allFinancialInfo = new mutable.HashMap[SeasonInfo, FinancialInfo]()
 
   def +=(seasonFinancialInfo: (SeasonInfo, FinancialInfo)): Unit = {
     allFinancialInfo += seasonFinancialInfo

@@ -1,6 +1,7 @@
 package idv.codievilky.august.stock
 package analyse
 
+import idv.codievilky.august.common.Season.Season
 import idv.codievilky.august.stock.info.{SeasonInfo, Stock}
 import idv.codievilky.august.stock.storage.FileStorage
 
@@ -26,7 +27,8 @@ object StockAnalyzer {
 }
 
 object Analyzer extends App {
-  val stock = FileStorage.getStock("601788")
+  val stock = FileStorage.getStock("002488")
   //  StockAnalyzer.calcPossiblePriceOf(SeasonInfo(2020, Season.Q3), stock, 2018).print()
-  StockAnalyzer.calcPossiblePriceOf(SeasonInfo(2020, Season.Q2), stock, 2019).print()
+  StockAnalyzer.calcPossiblePriceOf(SeasonInfo(2020, Season.Q3), stock, 2019).print()
+
 }

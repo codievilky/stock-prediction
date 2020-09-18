@@ -1,6 +1,7 @@
 package idv.codievilky.august.stock
 package info
 
+import idv.codievilky.august.common.Season.Season
 import idv.codievilky.august.stock.analyse.PossibleValue
 
 /**

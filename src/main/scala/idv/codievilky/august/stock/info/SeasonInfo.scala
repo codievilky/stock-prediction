@@ -4,10 +4,11 @@ package info
 import java.text.SimpleDateFormat
 import java.util.{Calendar, TimeZone}
 
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.annotation.{JsonDeserialize, JsonSerialize}
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.StringKeySerializer
-import com.fasterxml.jackson.databind.{DeserializationContext, JsonSerializer, KeyDeserializer, SerializerProvider}
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.{DeserializationContext, KeyDeserializer}
+import idv.codievilky.august.common.Season.Season
+
+import scala.math.Ordered.orderingToOrdered
 
 /**
  * @auther Codievilky August
@@ -85,7 +86,7 @@ object SeasonInfo {
     calendar.setTime(requestDate)
     val year = calendar.get(Calendar.YEAR)
     Season.values.foreach { season =>
-      val currentSeasonInfo = SeasonInfo(year, season.asInstanceOf[Season])
+      val currentSeasonInfo = SeasonInfo(year, season)
       if (currentSeasonInfo.timestamps >= requestDate.getTime) {
         return currentSeasonInfo
       }
@@ -93,6 +94,7 @@ object SeasonInfo {
     throw new IllegalArgumentException(s"failed to find season. $date")
   }
 }
+
 /*
 class SeasonInfoSerializer extends StringKeySerializer {
 

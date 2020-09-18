@@ -15,9 +15,17 @@ trait StockStorage {
 
   protected def saveStock(stock: Stock): Unit
 
-  protected def getStockName(stockCode: String) = stockCodeMap.getOrElse(stockCode, "UNKNOWN")
+  protected def getStockName(stockCode: String) = {
+    stockCodeMap.get(stockCode) match {
+      case Some(stockName) => stockName
+      case _ =>
+        val stockInfo = SinaStockInfoReptile.queryStockInfo(stockCode)
+        stockCodeMap(stockCode) = stockInfo.stockName
+        stockInfo.stockName
+    }
+  }
 
-  private val stockCodeMap = mutable.Map("00123fd" -> "sdf", "sdf" -> "ccc")
+  private val stockCodeMap = mutable.Map[String, String]()
 
   def getStock(stockCode: String): Stock = {
     loadStock(stockCode) match {
