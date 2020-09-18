@@ -3,6 +3,7 @@ package reptile
 
 import java.util.Calendar
 
+import grizzled.slf4j.Logger
 import idv.codievilky.august.stock.info.{DayInfo, SeasonInfo, StockCode, StockPrice}
 
 import scala.collection.mutable
@@ -14,18 +15,21 @@ import scala.collection.mutable
  * @since 2020/9/5
  */
 object TencentPriceReptile {
+  private val log = Logger[this.type]()
   val THE_EARLIEST_YEAR = 2016
 
   def queryStockPrice(stockCode: String): StockPrice = {
     val currentYear = SeasonInfo.chinaCalendar.get(Calendar.YEAR)
     val allPrice = new mutable.HashMap[DayInfo, Double]()
     val fullStockCode = StockCode(stockCode).fullCode
-    for (year <- THE_EARLIEST_YEAR to currentYear) {
+    for (year <- THE_EARLIEST_YEAR to currentYear)
       queryPriceByYear(fullStockCode, year % 100) match {
-        case Some(priceMap) => allPrice ++= priceMap
+        case Some(priceMap) =>
+          log.info(s"loaded the price of $year.")
+          allPrice ++= priceMap
+
         case _ =>
       }
-    }
     new StockPrice(currentYear, allPrice)
   }
 
