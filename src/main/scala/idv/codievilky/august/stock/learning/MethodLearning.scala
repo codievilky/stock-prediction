@@ -1,5 +1,7 @@
 package idv.codievilky.august.stock.learning
 
+import java.util
+
 /**
  * @auther Codievilky August
  * @since 2020/9/7
@@ -16,5 +18,5 @@ class MethodLearning {
 
 object MethodMain extends App {
   val m = new MethodLearning
-  
+
 }

@@ -1,22 +1,25 @@
 package idv.codievilky.august.stock.learning
 
-import scala.Console.println
-import scala.reflect.ClassTag.Nothing
-
 /**
  * @auther Codievilky August
  * @since 2020/9/5
  */
 class NormalScala {
 
-
 }
 
 object NormalMain {
   def main(args: Array[String]): Unit = {
-    val score = collection.mutable.Map("ab" -> 2, "cd" -> 4)
-    val newScore = (score ++ collection.mutable.Map("fb" -> 5, "cd" -> 2))
-    newScore.update("cd", 2)
-    println(newScore)
+    val s = Seq(1, 4, 3, 5, 6, 7, "s")
+    println(s.map {
+      case i: Int => i * 10
+      case v:String => s"10$v"
+    })
+    println(s.collect {
+      case i: Int => i * 10
+      case b: Long => b * 100
+    })
+    println(s.flatMap(i => Some(10)))
+
   }
 }
