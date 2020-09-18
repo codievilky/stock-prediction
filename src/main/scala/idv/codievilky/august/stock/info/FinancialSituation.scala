@@ -34,7 +34,7 @@ class FinancialSituation {
   def update(seasonInfo: SeasonInfo, financialInfo: FinancialInfo): Unit = allFinancialInfo.update(seasonInfo, financialInfo);
 
   def netProfitYearOnYearGrowthRatio(startSeason: SeasonInfo) = {
-    (netProfit(startSeason) * 1000 / netProfit(startSeason.lastYear)).toDouble / 1000
+    netProfit(startSeason).toDouble / netProfit(startSeason.lastYear)
   }
 
   def netProfit(season: SeasonInfo) = {
@@ -64,8 +64,8 @@ class FinancialSituation {
   /**
    * 环比数据估算
    */
-  private[info] def guessByYearIncrease(expectedSeason: SeasonInfo, calcStartYear: Int): PossibleValue = {
-    var startSeason = SeasonInfo(calcStartYear, expectedSeason.season)
+  private[info] def guessByYearIncrease(expectedSeason: SeasonInfo, calcStartYear: Int): Set[PossibleValue] = {
+    var startSeason = List(allFinancialInfo.keySet.min.nextYear + 1, SeasonInfo(calcStartYear, expectedSeason.season)).max
     var increaseSum = 0D
     var calcYearNum = 0
     while (startSeason < expectedSeason) {
@@ -73,8 +73,11 @@ class FinancialSituation {
       startSeason += 4
       calcYearNum += 1
     }
+    if (calcYearNum == 0) {
+      return Set()
+    }
     val lastYearProfit = netProfit(expectedSeason.lastYear)
-    PossibleValue((lastYearProfit * increaseSum / calcYearNum).toLong, 0.70)
+    Set(PossibleValue((lastYearProfit * increaseSum / calcYearNum).toLong, 0.70))
   }
 }
 

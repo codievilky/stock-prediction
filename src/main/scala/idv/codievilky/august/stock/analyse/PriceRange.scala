@@ -1,23 +1,21 @@
 package idv.codievilky.august.stock.analyse
 
-import java.util.Comparator
+import grizzled.slf4j.Logger
 
 /**
  * @auther Codievilky August
  * @since 2020/9/14
  */
 class PriceRange(outerPossiblePriceList: List[PossiblePrice]) {
+  private val log = Logger[this.type]()
   val possiblePriceList = outerPossiblePriceList.sortBy(_.percentage).reverse
-  val maxPrice = outerPossiblePriceList.iterator.max((a: PossiblePrice, b: PossiblePrice) => a.price.compareTo(b.price))
-  val minPrice = outerPossiblePriceList.min((a: PossiblePrice, b: PossiblePrice) => a.price.compareTo(b.price))
+  val maxPrice = outerPossiblePriceList.iterator.maxBy(_.price).price
+  val minPrice = outerPossiblePriceList.minBy(_.price).price
 
-
-
-
-  override def toString = s"the max price of stock is 10 and the min price of stock is 12"
+  override def toString = s"the max price of stock is $maxPrice and the min price of stock is $minPrice"
 
   def print(): Unit = {
-    println(toString)
-    println(possiblePriceList.mkString("\n"))
+    log.info(toString)
+    possiblePriceList.foreach(log.info(_))
   }
 }

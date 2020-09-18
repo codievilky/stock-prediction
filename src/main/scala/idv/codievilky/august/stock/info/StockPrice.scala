@@ -43,7 +43,7 @@ class StockPrice {
         val dayPrice = new StockDayPrice(priceSum / foundPriceNum)
         log.info(s"loaded $season price at ${dayPrice.calcPrice}.")
         seasonPriceMap += (season -> dayPrice)
-        innerMaxSeason = if (season > innerMaxSeason) season else innerMaxSeason
+        innerMaxSeason = if (innerMaxSeason == null || season > innerMaxSeason) season else innerMaxSeason
       }
     }
     this

@@ -33,7 +33,7 @@ class Stock(val stockInfo: StockInfo, val price: StockPrice, val financialSituat
 
   // 计算今年可能的利润
   def guessPossibleProfit(calcSeason: SeasonInfo, calculateStartYear: Int): Set[PossibleValue] = {
-    financialSituation.guessBySeasonIncrease(calcSeason) + financialSituation.guessByYearIncrease(calcSeason, calculateStartYear)
+    financialSituation.guessBySeasonIncrease(calcSeason) ++ financialSituation.guessByYearIncrease(calcSeason, calculateStartYear)
   }
 
   def guessPossiblePe(calcSeason: SeasonInfo, calculateStartYear: Int): Set[PossibleValue] = {
@@ -50,7 +50,7 @@ class Stock(val stockInfo: StockInfo, val price: StockPrice, val financialSituat
       try {
         startPrice += ((netProfitByShareOf(season) - netProfitByShareOf(season.lastYear)) * peOf(season))
       } catch {
-        case e: Exception => log.info(s"can not net profit of season: $season. skip.", e)
+        case e: Exception => log.info(s"can not find the net profit of season: $season or ${season.lastYear}. skip.")
       }
     }
     (startPrice + (possibleNetProfit - netProfitByShareOf(targetSeason.lastYear)) * possiblePe) / totalShares
