@@ -25,6 +25,10 @@ package object stock {
     (value * multiPle).toLong.toDouble / multiPle
   }
 
+  def keepNumber(value: Double): Double = {
+    keepNumber(value, 2)
+  }
+
   private val httpClient: OkHttpClient = new OkHttpClient.Builder().callTimeout(20, TimeUnit.SECONDS).build()
 
   def doGet(url: String): String = {

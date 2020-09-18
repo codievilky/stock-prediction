@@ -1,6 +1,7 @@
 package idv.codievilky.august.stock
 package analyse
 
+import grizzled.slf4j.Logger
 import idv.codievilky.august.common.Season.Season
 import idv.codievilky.august.stock.info.{SeasonInfo, Stock}
 import idv.codievilky.august.stock.storage.FileStorage
@@ -10,16 +11,25 @@ import idv.codievilky.august.stock.storage.FileStorage
  * @since 2020/9/5
  */
 object StockAnalyzer {
+  private val log = Logger[this.type]()
+
   def printStock(stock: Stock): Unit = {}
 
   def calcPossiblePriceOf(targetSeason: SeasonInfo, stock: Stock, calcStartYear: Int): PriceRange = {
-    val startSeason = SeasonInfo(calcStartYear, Season.Q1)
+    // 首先必须至少有两年的数据才可以计算
+    stock.financialSituation.allFinancialInfo.get(targetSeason.lastYear) match {
+      case None => val msg = s"not enough data at season of $targetSeason"
+        log.info(msg)
+        throw new IllegalArgumentException()
+      case _ =>
+    }
+    val startSeason = targetSeason.lastSeason
     // 估计本季度可能的净利润
-    val possibleProfitList = stock.guessPossibleProfit(targetSeason, calcStartYear)
-    val possiblePeList = stock.guessPossiblePe(targetSeason, calcStartYear)
+    val possibleProfitSet = stock.guessPossibleProfit(targetSeason, calcStartYear)
+    val possiblePeSet = stock.guessPossiblePe(targetSeason, calcStartYear)
     // 计算出目前季度的上个记录的可能价格
-    val possiblePrice = for (season <- startSeason until targetSeason; profit <- possibleProfitList; pe <- possiblePeList) yield {
-      val price = stock.calcPossiblePrice(season, targetSeason, profit.value.longValue(), pe.value.doubleValue()).toLong
+    val possiblePrice = for (profit <- possibleProfitSet; pe <- possiblePeSet) yield {
+      val price = stock.calcPossiblePrice(startSeason, targetSeason, profit.value.longValue(), pe.value.doubleValue())
       new PossiblePrice(price, profit, pe)
     }
     new PriceRange(possiblePrice.toList)

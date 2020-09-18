@@ -5,14 +5,13 @@ import idv.codievilky.august.common.Season.Season
 import idv.codievilky.august.stock.analyse.PossibleValue
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 /**
  * @auther Codievilky August
  * @since 2020/9/5
  */
 class FinancialSituation {
-  def this(financialInfoIter: Iterator[FinancialInfo]) {
+  def this(financialInfoIter: Iterator[FinancialInfo]) = {
     this()
     financialInfoIter.foldLeft(allFinancialInfo) { (m, f) =>
       m += (f.seasonInfo -> f)
@@ -25,7 +24,12 @@ class FinancialSituation {
     allFinancialInfo += seasonFinancialInfo
   }
 
-  def apply(seasonInfo: SeasonInfo): FinancialInfo = allFinancialInfo(seasonInfo)
+  def apply(seasonInfo: SeasonInfo): FinancialInfo = {
+    allFinancialInfo.get(seasonInfo) match {
+      case Some(info) => info
+      case None => throw new IllegalArgumentException(s"can not find financial info at season: $seasonInfo")
+    }
+  }
 
   def update(seasonInfo: SeasonInfo, financialInfo: FinancialInfo): Unit = allFinancialInfo.update(seasonInfo, financialInfo);
 
@@ -34,8 +38,8 @@ class FinancialSituation {
   }
 
   def netProfit(season: SeasonInfo) = {
-    if (season.season == Season.Q1) allFinancialInfo(season).totalNetProfit
-    else allFinancialInfo(season).totalNetProfit - allFinancialInfo(season.lastSeason).totalNetProfit
+    if (season.season == Season.Q1) this (season).totalNetProfit
+    else this (season).totalNetProfit - this (season.lastSeason).totalNetProfit
   }
 
   /**
@@ -44,17 +48,17 @@ class FinancialSituation {
    *
    * 求 c2 = c1 * (a2 / a1)
    */
-  private[info] def guessBySeasonIncrease(expectedSeason: SeasonInfo): List[PossibleValue] = {
+  private[info] def guessBySeasonIncrease(expectedSeason: SeasonInfo): Set[PossibleValue] = {
     if (expectedSeason.season == Season.Q1) {
-      return List()
+      return Set()
     }
     val lastYearProfit = netProfit(expectedSeason.lastYear)
-    val expectedProfit = new ListBuffer[Long]
+    val expectedProfit = new mutable.HashSet[Long]
     for (seasonId <- 1 until expectedSeason.season.id) {
       val seasonInfo = SeasonInfo(expectedSeason.year, Season.of(seasonId))
       expectedProfit += (lastYearProfit * netProfitYearOnYearGrowthRatio(seasonInfo)).toLong
     }
-    for (profit <- expectedProfit.toList) yield PossibleValue(profit, 0.65)
+    (for (profit <- expectedProfit) yield PossibleValue(profit, 0.65)).toSet
   }
 
   /**
