@@ -30,6 +30,9 @@ trait StockStorage {
   private val log = Logger[this.type]()
 
   def getStock(stockCode: String): Stock = {
+    if (stockCode.length != 6) {
+      throw new IllegalArgumentException(s"illegal code length: ${stockCode.length}")
+    }
     val stock = loadStock(stockCode) match {
       case Some(loadedStock) => loadedStock
       case None =>
