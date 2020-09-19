@@ -13,15 +13,18 @@ import idv.codievilky.august.stock.storage.FileStorage
 object StockAnalyzer {
   private val log = Logger[this.type]()
 
-  def printStock(stock: Stock): Unit = {}
+  def printStock(stock: Stock): Unit = {
+
+  }
 
   def calcPossiblePriceOf(targetSeason: SeasonInfo, stock: Stock, calcStartYear: Int): PriceRange = {
     // 首先必须至少有两年的数据才可以计算
-    stock.financialSituation.allFinancialInfo.get(targetSeason.lastYear) match {
-      case None => val msg = s"not enough data at season of $targetSeason"
-        log.info(msg)
-        throw new IllegalArgumentException()
-      case _ =>
+    val currentFinancialInfoOfTime = stock.financialSituation.allFinancialInfo.keySet
+    if (currentFinancialInfoOfTime.min > targetSeason.lastYear || currentFinancialInfoOfTime.max < (targetSeason - 1)) {
+      val msg = s"not enough data at season for $targetSeason. " +
+        s"we only have data from ${currentFinancialInfoOfTime.min} to ${currentFinancialInfoOfTime.max}. "
+      log.info(msg)
+      throw new IllegalArgumentException(msg)
     }
     val startSeason = targetSeason.lastSeason
     // 估计本季度可能的净利润
@@ -40,8 +43,6 @@ object StockAnalyzer {
 }
 
 object Analyzer extends App {
-  val stock = FileStorage.getStock("603697")
-  //  StockAnalyzer.calcPossiblePriceOf(SeasonInfo(2020, Season.Q3), stock, 2018).print()
-  StockAnalyzer.calcPossiblePriceOf(SeasonInfo(2020, Season.Q3), stock, 2019).print()
-
+  val stock = FileStorage.getStock("00672")
+  StockAnalyzer.calcPossiblePriceOf(SeasonInfo(2020, Season.Q3), stock, 2017).print()
 }

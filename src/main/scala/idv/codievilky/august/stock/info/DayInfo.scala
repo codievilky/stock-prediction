@@ -29,3 +29,12 @@ case class DayInfo(year: Int, month: Int, day: Int) {
     this - 1
   }
 }
+
+object DayInfo {
+  def fromDate(simpleDate: String): DayInfo = {
+    val date = SeasonInfo.SIMPLE_DATE_FORMATTER.parse(simpleDate)
+    val calendar = SeasonInfo.chinaCalendar
+    calendar.setTime(date)
+    DayInfo(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
+  }
+}

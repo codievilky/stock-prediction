@@ -18,12 +18,8 @@ class StockPrice {
   val seasonPriceMap = new mutable.HashMap[SeasonInfo, StockDayPrice]()
   private var innerMaxSeason: SeasonInfo = _
 
-  def maxSeason = {
-    if (innerMaxSeason == null) innerMaxSeason = seasonPriceMap.keySet.max
-    innerMaxSeason
-  }
-
-  def init(currentYear: Int, allPrice: mutable.HashMap[DayInfo, Double]): StockPrice = {
+  def this(currentYear: Int, allPrice: mutable.HashMap[DayInfo, Double]) = {
+    this()
     val realStartDay = allPrice.keySet.minBy(_.toInt)
     for (season <- SeasonInfo(realStartDay.year, Season.Q1) until SeasonInfo(currentYear + 1, Season.Q1)) {
       val lastDayOfSeason = season.lastDayOfSeason
@@ -41,12 +37,16 @@ class StockPrice {
       }
       if (foundPriceNum > 0) {
         val dayPrice = new StockDayPrice(priceSum / foundPriceNum)
-        log.info(s"loaded $season price at ${dayPrice.calcPrice}.")
+        log.info(s"loaded $season price at `${dayPrice.calcPrice}`.")
         seasonPriceMap += (season -> dayPrice)
         innerMaxSeason = if (innerMaxSeason == null || season > innerMaxSeason) season else innerMaxSeason
       }
     }
-    this
+  }
+
+  def maxSeason = {
+    if (innerMaxSeason == null) innerMaxSeason = seasonPriceMap.keySet.max
+    innerMaxSeason
   }
 
 

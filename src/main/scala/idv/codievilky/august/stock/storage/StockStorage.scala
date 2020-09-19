@@ -1,7 +1,8 @@
 package idv.codievilky.august.stock.storage
 
+import grizzled.slf4j.Logger
 import idv.codievilky.august.stock.info.Stock
-import idv.codievilky.august.stock.reptile.{SinaFinancialReptile, SinaStockInfoReptile, TencentPriceReptile}
+import idv.codievilky.august.stock.reptile.{PriceReptile, SinaFinancialReptile, SinaStockInfoReptile}
 
 import scala.collection.mutable
 
@@ -26,18 +27,21 @@ trait StockStorage {
   }
 
   private val stockCodeMap = mutable.Map[String, String]()
+  private val log = Logger[this.type]()
 
   def getStock(stockCode: String): Stock = {
-    loadStock(stockCode) match {
+    val stock = loadStock(stockCode) match {
       case Some(loadedStock) => loadedStock
       case None =>
         val situation = SinaFinancialReptile.querySinaFinancialSituation(stockCode)
         val stockInfo = SinaStockInfoReptile.queryStockInfo(stockCode)
         stockCodeMap(stockCode) = stockInfo.stockName
-        val stockPrice = TencentPriceReptile.queryStockPrice(stockCode)
+        val stockPrice = PriceReptile.currentReptile.queryStockPrice(stockCode)
         val readStock = new Stock(stockInfo, stockPrice, situation)
         saveStock(readStock)
         readStock
     }
+    log.info(s"you have get the stock of name: ${stock.stockInfo.stockName}")
+    stock
   }
 }

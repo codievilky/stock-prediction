@@ -37,7 +37,14 @@ class Stock(val stockInfo: StockInfo, val price: StockPrice, val financialSituat
   }
 
   def guessPossiblePe(calcSeason: SeasonInfo, calculateStartYear: Int): Set[PossibleValue] = {
-    val peList = (for (season <- SeasonInfo(calculateStartYear, Season.Q1) until calcSeason) yield peOf(season)).filter(_ > 0)
+    val peList: Seq[Double] = (SeasonInfo(calculateStartYear, Season.Q1) until calcSeason).map {
+      season: SeasonInfo =>
+        try {
+          peOf(season)
+        } catch {
+          case _: Exception => -1
+        }
+    } filter (_ > 0)
     Set(PossibleValue(peList.max, 0.40), PossibleValue(peList.min, 0.40), PossibleValue(peList.sum / peList.length, 0.80))
   }
 
@@ -75,7 +82,12 @@ object Stock extends App {
 }
 
 case class StockCode(code: String) {
-  val fullCode = if (code.startsWith("0") || code.startsWith("300")) s"sz$code"
-  else if (code.startsWith("6")) s"sh$code"
-  else throw new IllegalArgumentException(s"unknown stock code $code")
+  val inSh = code.startsWith("6")
+  val inSz = code.startsWith("0") || code.startsWith("300")
+
+  val fullCode = {
+    if (inSz) s"sz$code"
+    else if (inSh) s"sh$code"
+    else throw new IllegalArgumentException(s"unknown stock code $code")
+  }
 }

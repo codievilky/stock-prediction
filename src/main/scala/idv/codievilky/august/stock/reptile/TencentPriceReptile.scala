@@ -1,10 +1,7 @@
 package idv.codievilky.august.stock
 package reptile
 
-import java.util.Calendar
-
-import grizzled.slf4j.Logger
-import idv.codievilky.august.stock.info.{DayInfo, SeasonInfo, StockCode, StockPrice}
+import idv.codievilky.august.stock.info.{DayInfo, StockCode}
 
 import scala.collection.mutable
 
@@ -14,26 +11,13 @@ import scala.collection.mutable
  * @auther Codievilky August
  * @since 2020/9/5
  */
-object TencentPriceReptile {
-  private val log = Logger[this.type]()
-  val THE_EARLIEST_YEAR = 2016
+object TencentPriceReptile extends PriceReptile {
 
-  def queryStockPrice(stockCode: String): StockPrice = {
-    val currentYear = SeasonInfo.chinaCalendar.get(Calendar.YEAR)
-    val allPrice = new mutable.HashMap[DayInfo, Double]()
-    val fullStockCode = StockCode(stockCode).fullCode
-    for (year <- THE_EARLIEST_YEAR to currentYear)
-      queryPriceByYear(fullStockCode, year % 100) match {
-        case Some(priceMap) =>
-          log.info(s"loaded the price of $year.")
-          allPrice ++= priceMap
-
-        case _ =>
-      }
-    new StockPrice().init(currentYear, allPrice)
+  def queryPriceByYear(stockCode: StockCode, year: Int): Option[mutable.HashMap[DayInfo, Double]] = {
+    innerQueryPriceByYear(stockCode.fullCode, year % 100)
   }
 
-  def queryPriceByYear(fullStockCode: String, cutYear: Int): Option[mutable.HashMap[DayInfo, Double]] = {
+  def innerQueryPriceByYear(fullStockCode: String, cutYear: Int): Option[mutable.HashMap[DayInfo, Double]] = {
     val response = doGet(s"http://data.gtimg.cn/flashdata/hushen/daily/$cutYear/$fullStockCode.js")
     if (response == null) {
       return None
